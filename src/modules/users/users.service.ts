@@ -26,4 +26,12 @@ export class UsersService {
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
+
+  async findByVerificationToken(token: string): Promise<User> {
+    return this.userRepo.findOne({ where: { emailVerificationToken: token } });
+  }
+
+  async save(user: User): Promise<User> {
+    return this.userRepo.save(user);
+  }
 }

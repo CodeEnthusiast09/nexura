@@ -15,7 +15,10 @@ export class User {
   email: string;
 
   @Column()
-  name: string;
+  firstName: string;
+
+  @Column()
+  lastName: string;
 
   @Column()
   password: string;
@@ -28,4 +31,10 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ nullable: true })
+  emailVerificationToken: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  emailVerificationTokenExpires: Date;
 }
