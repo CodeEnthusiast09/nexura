@@ -8,7 +8,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
-import { EmailService } from 'src/common/email/email.service';
+import { EmailService } from 'src/modules/email/email.service';
 import { randomBytes } from 'crypto';
 import { addMinutes } from 'date-fns';
 
@@ -28,6 +28,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
     const token = randomBytes(32).toString('hex');
+
     const tokenExpires = addMinutes(new Date(), 30);
 
     const user = await this.usersService.create({
@@ -41,7 +42,8 @@ export class AuthService {
     const verifyUrl = `http://localhost:3001/verify-email?token=${token}`;
     const html = `<p>Click <a href="${verifyUrl}">here</a> to verify your email.</p>`;
 
-    await this.emailService.sendEmail(user.email, 'Verify your email', html);
+    // Send activation email
+    await this.emailService.sendActivationEmail(user.email, token);
 
     return {
       message:

@@ -14,4 +14,14 @@ export default () => ({
   dbPassword: process.env.DB_PASSWORD,
 
   dbName: process.env.DB_NAME,
+
+  EMAIL_HOST: process.env.EMAIL_HOST,
+
+  EMAIL_PORT: parseInt(process.env.EMAIL_PORT),
+
+  EMAIL_USER: process.env.EMAIL_USER,
+
+  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
+
+  FRONT_END_URL: process.env.FRONT_END_URL,
 });

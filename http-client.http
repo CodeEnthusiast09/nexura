@@ -19,3 +19,16 @@ Content-Type: application/json
     "email": "johndoe@mail.com",
     "password": "1234567"
 }
+
+### Send Email
+
+POST http://localhost:3000/email/send-email
+Content-Type: application/json
+
+{
+  "recipients": ["obrienadedapo09@gmail.com"],
+  "subject": "Test Email",
+  "html": "This is a test email sent from the Nestjs application. <br> It is sent using the <a href=\"https://nodemailer.com/about/\">Nodemailer</a> package.",
+  "text": "This is a test email sent from the Nestjs application. It is sent using the Nodemailer package."
+}
+

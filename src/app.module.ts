@@ -8,25 +8,24 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { dataSourceOptions } from '../db/data-source';
-import { EmailService } from './common/email/email.service';
-import { EmailModule } from './common/email/email.module';
+import { EmailController } from './modules/email/email.controller';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(dataSourceOptions),
     // TypeOrmModule.forRoot(typeOrmAsyncConfig),
-    // ConfigModule.forRoot({
+    ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+    //   {
     //   envFilePath: ['.development.env', '.production.env'],
     //   envFilePath: [`${process.cwd()}/.env.${process.env.NODE_ENV}`],
-    //   isGlobal: true,
-    //   load: [configuration],
     //   validate: validate,
-    // }),
+    // }
     AuthModule,
     UsersModule,
     EmailModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, EmailService],
+  controllers: [AppController, EmailController],
+  providers: [AppService],
 })
 export class AppModule {}

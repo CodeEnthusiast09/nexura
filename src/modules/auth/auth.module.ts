@@ -7,21 +7,22 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { authConstants } from './constants/auth.constants';
-import { EmailService } from 'src/common/email/email.service';
+import { EmailService } from '../email/email.service';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
     UsersModule,
-    // JwtModule.registerAsync({
-    //   imports: [ConfigModule],
-    //   useFactory: async (configService: ConfigService) => ({
-    //     secret: configService.get<string>('secret'),
-    //     signOptions: {
-    //       expiresIn: '1h',
-    //     },
-    //   }),
-    //   inject: [ConfigService],
-    // }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('secret'),
+        signOptions: {
+          expiresIn: '1h',
+        },
+      }),
+      inject: [ConfigService],
+    }),
     JwtModule.register({
       secret: authConstants.secret,
       signOptions: {
@@ -29,6 +30,7 @@ import { EmailService } from 'src/common/email/email.service';
       },
     }),
     PassportModule,
+    EmailModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JWTStrategy, EmailService],
