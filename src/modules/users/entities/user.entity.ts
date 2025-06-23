@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   Entity,
   Column,
@@ -21,6 +22,7 @@ export class User {
   lastName: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @Column({ default: false })
@@ -33,8 +35,10 @@ export class User {
   updatedAt: Date;
 
   @Column({ nullable: true })
+  @Exclude()
   emailVerificationToken: string;
 
   @Column({ type: 'timestamp', nullable: true })
+  @Exclude()
   emailVerificationTokenExpires: Date;
 }

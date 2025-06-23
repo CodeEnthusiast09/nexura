@@ -15,10 +15,8 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
-  async findByEmail(email: string): Promise<User> {
-    const user = await this.userRepo.findOne({ where: { email } });
-    if (!user) throw new NotFoundException('User not found');
-    return user;
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userRepo.findOne({ where: { email } });
   }
 
   async findById(id: string): Promise<User> {

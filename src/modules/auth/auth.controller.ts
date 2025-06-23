@@ -1,10 +1,18 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { successResponse } from 'src/common/utils/response.helper';
 
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -24,5 +32,10 @@ export class AuthController {
   async verifyEmail(@Body('token') token: string) {
     const result = await this.authService.verifyEmail(token);
     return successResponse('Email verified successfully', result);
+  }
+
+  @Get('env')
+  getEnv() {
+    return this.authService.getEnvVariables();
   }
 }

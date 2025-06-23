@@ -1,27 +1,18 @@
 export default () => ({
-  NODE_ENV: process.env.NODE_ENV,
-
   port: parseInt(process.env.PORT),
-
   secret: process.env.SECRET,
-
-  dbHost: process.env.DB_HOST,
-
-  dbPort: parseInt(process.env.DB_PORT),
-
-  dbUsername: process.env.DB_USERNAME,
-
-  dbPassword: process.env.DB_PASSWORD,
-
-  dbName: process.env.DB_NAME,
-
-  EMAIL_HOST: process.env.EMAIL_HOST,
-
-  EMAIL_PORT: parseInt(process.env.EMAIL_PORT),
-
-  EMAIL_USER: process.env.EMAIL_USER,
-
-  EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
-
-  FRONT_END_URL: process.env.FRONT_END_URL,
+  database: {
+    host: process.env.DATABASE_HOST,
+    port: parseInt(process.env.DATABASE_PORT),
+    user: process.env.DATABASE_USENAME,
+    pass: process.env.DATABASE_PWD,
+    name: process.env.DATABASE_NAME,
+  },
+  email: {
+    host: process.env.EMAIL_HOST,
+    port: parseInt(process.env.EMAIL_PORT),
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  frontendUrl: process.env.FRONT_END_URL,
 });

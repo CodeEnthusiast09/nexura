@@ -23,12 +23,12 @@ import { EmailModule } from '../email/email.module';
       }),
       inject: [ConfigService],
     }),
-    JwtModule.register({
-      secret: authConstants.secret,
-      signOptions: {
-        expiresIn: '1d',
-      },
-    }),
+    // JwtModule.register({
+    //   secret: authConstants.secret,
+    //   signOptions: {
+    //     expiresIn: '1d',
+    //   },
+    // }),
     PassportModule,
     EmailModule,
   ],

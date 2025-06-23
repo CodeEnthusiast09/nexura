@@ -11,6 +11,7 @@ import * as bcrypt from 'bcryptjs';
 import { EmailService } from 'src/modules/email/email.service';
 import { randomBytes } from 'crypto';
 import { addMinutes } from 'date-fns';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -18,9 +19,33 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
+    private readonly configService: ConfigService,
   ) {}
+
+  getEnvVariables() {
+    return {
+      port: this.configService.get<number>('port'),
+      secret: this.configService.get<string>('secret'),
+      database: {
+        host: this.configService.get<string>('database.host'),
+        port: this.configService.get<number>('database.port'),
+        user: this.configService.get<string>('database.user'),
+        pass: this.configService.get<string>('database.pass'),
+        name: this.configService.get<string>('database.name'),
+      },
+      email: {
+        host: this.configService.get<string>('email.host'),
+        port: this.configService.get<number>('email.port'),
+        user: this.configService.get<string>('email.user'),
+        pass: this.configService.get<string>('email.pass'),
+      },
+      frontendUrl: this.configService.get<string>('frontendUrl'),
+    };
+  }
+
   async register(registerDto: RegisterDto) {
     const existingUser = await this.usersService.findByEmail(registerDto.email);
+
     if (existingUser) {
       throw new BadRequestException('Email is already in use');
     }
