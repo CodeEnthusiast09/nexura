@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -20,6 +21,7 @@ import { OtpVerifyDto } from '../otp/dto/otp-verify.dto';
 import { MoreThan, Repository } from 'typeorm';
 import { Otp } from '../otp/entities/otp.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { OtpRequestDto } from '../otp/dto/otp-request.dto';
 
 @Injectable()
 export class AuthService {
@@ -99,8 +101,6 @@ export class AuthService {
       );
     }
 
-    const { accessToken } = this.generateToken(user);
-
     const { otp, tempToken } = await this.otpService.generateOtp(
       user,
       6,
@@ -124,6 +124,28 @@ export class AuthService {
     };
   }
 
+  async resetPassword(dto: OtpRequestDto) {
+    const { email } = dto;
+
+    const user = await this.usersService.findByEmail(email);
+
+    let tempToken: string | null = null;
+
+    if (user) {
+      const { otp, tempToken: generatedTempToken } =
+        await this.otpService.generateOtp(user, 6, OtpType.RESET_PASSWORD);
+
+      tempToken = generatedTempToken;
+
+      await this.emailService.sendEmail({
+        recipients: [user.email],
+        subject: 'OTP for password reset',
+        html: `<p>Your OTP code is: <strong>${otp}</strong></p>`,
+      });
+    }
+    return { tempToken };
+  }
+
   async verifyEmail(token: string) {
     const user = await this.usersService.findByVerificationToken(token);
     if (!user)
@@ -142,18 +164,19 @@ export class AuthService {
     // return { message: 'Email verified successfully. You can now log in.' };
   }
 
-  async verifyOtp(dto: OtpVerifyDto) {
+  async verifyOtp(dto: OtpVerifyDto, otpType: OtpType) {
     const { tempToken, otp } = dto;
     const otpRecord = await this.otpRepo.findOne({
       where: {
         tempToken,
         expiresAt: MoreThan(new Date()),
-        type: OtpType.OTP,
+        type: otpType,
       },
       relations: ['user'],
     });
 
     if (!otpRecord) {
+      await bcrypt.compare(otp, '$2b$10$kcf4893fh8948h93043g12345');
       throw new UnauthorizedException('Invalid or expired token.');
     }
 
@@ -180,5 +203,17 @@ export class AuthService {
     const { accessToken } = this.generateToken(user);
 
     return { accessToken, user };
+  }
+
+  async setNewPassword(userId: string, newPassword: string) {
+    const user = await this.usersService.findById(userId);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+
+    await this.usersService.save(user);
   }
 }

@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { OtpType } from '../type/otp-type';
 
 export class OtpVerifyDto {
   @IsUUID()
@@ -6,4 +7,7 @@ export class OtpVerifyDto {
 
   @IsNotEmpty()
   otp: string;
+
+  @IsString()
+  type: OtpType
 }

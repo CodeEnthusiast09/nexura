@@ -4,6 +4,8 @@ import {
   Controller,
   Get,
   Post,
+  Req,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -11,6 +13,11 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { successResponse } from 'src/common/utils/response.helper';
 import { OtpVerifyDto } from '../otp/dto/otp-verify.dto';
+import { OtpRequestDto } from '../otp/dto/otp-request.dto';
+import { OtpType } from '../otp/type/otp-type';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from './guards/jwt.guard';
+import { SetNewPasswordDto } from './dto/set-new-password.dto';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -38,10 +45,41 @@ export class AuthController {
     return successResponse('OTP has been sent to your email', result);
   }
 
-  @Post('verify-otp')
-  async verifyOtp(@Body() dto: OtpVerifyDto) {
-    const result = await this.authService.verifyOtp(dto);
+  @Post('reset-password')
+  async resetPassword(@Body() dto: OtpRequestDto) {
+    const result = await this.authService.resetPassword(dto);
+    return successResponse('you will receive an OTP shortly.', result);
+  }
+
+  // @Post('verify-otp')
+  // async verifyOtp(@Body() dto: OtpVerifyDto) {
+  //   const result = await this.authService.verifyOtp(dto);
+  //   return successResponse('Login successful', result);
+  // }
+
+  @Post('verify-login-otp')
+  async verifyLoginOtp(@Body() dto: OtpVerifyDto) {
+    const result = await this.authService.verifyOtp(dto, OtpType.OTP);
     return successResponse('Login successful', result);
+  }
+
+  @Post('verify-reset-password-otp')
+  async verifyResetPasswordOtp(@Body() dto: OtpVerifyDto) {
+    const result = await this.authService.verifyOtp(
+      dto,
+      OtpType.RESET_PASSWORD,
+    );
+    return successResponse(
+      'OTP verified. You may now reset your password.',
+      result,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('set-new-password')
+  async setNewPassword(@Req() req, @Body() dto: SetNewPasswordDto) {
+    await this.authService.setNewPassword(req.user.id, dto.newPassword);
+    return successResponse('Password has been reset successfully');
   }
 
   @Get('env')

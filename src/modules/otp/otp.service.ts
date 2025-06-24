@@ -7,7 +7,6 @@ import { generateOtp } from './utils/otp.util';
 import { OtpType } from './type/otp-type';
 import { User } from '../users/entities/user.entity';
 import { randomUUID } from 'crypto';
-import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class OtpService {
