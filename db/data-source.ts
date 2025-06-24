@@ -6,6 +6,9 @@ import {
   TypeOrmModuleAsyncOptions,
   TypeOrmModuleOptions,
 } from '@nestjs/typeorm';
+import { config as dotenvConfig } from 'dotenv';
+
+dotenvConfig({ path: '.env.local' });
 
 export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
@@ -29,11 +32,11 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT),
-  username: process.env.DB_USERNAME,
-  database: process.env.DB_NAME,
-  password: String(process.env.DB_PASSWORD),
+  host: process.env.DATABASE_HOST,
+  port: parseInt(process.env.DATABASE_PORT),
+  username: process.env.DATABASE_USENAME,
+  database: process.env.DATABASE_NAME,
+  password: process.env.DATABASE_PWD,
   entities: ['dist/**/*.entity.js'],
   synchronize: false,
   migrations: ['dist/db/migrations/*.js'],
@@ -41,19 +44,3 @@ export const dataSourceOptions: DataSourceOptions = {
 
 const dataSource = new DataSource(dataSourceOptions);
 export default dataSource;
-
-// export const dataSourceOptions: DataSourceOptions = {
-//   type: 'postgres',
-//   host: 'localhost',
-//   port: 5432,
-//   username: 'obrien',
-//   password: 'admin123',
-//   database: 'nexura',
-//   entities: ['dist/**/*.entity.js'],
-//   synchronize: false,
-//   migrations: ['dist/db/migrations/*.js'],
-// };
-
-// const dataSource = new DataSource(dataSourceOptions);
-
-// export default dataSource;

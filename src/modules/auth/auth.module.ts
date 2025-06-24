@@ -9,10 +9,16 @@ import { PassportModule } from '@nestjs/passport';
 import { authConstants } from './constants/auth.constants';
 import { EmailService } from '../email/email.service';
 import { EmailModule } from '../email/email.module';
+import { OtpModule } from '../otp/otp.module';
+import { OtpService } from '../otp/otp.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Otp } from '../otp/entities/otp.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([Otp]),
     UsersModule,
+    OtpModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -33,6 +39,6 @@ import { EmailModule } from '../email/email.module';
     EmailModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JWTStrategy, EmailService],
+  providers: [AuthService, JWTStrategy],
 })
 export class AuthModule {}

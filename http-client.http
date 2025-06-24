@@ -9,9 +9,9 @@ POST http://localhost:3000/auth/register
 Content-Type: application/json
 
 {
-    "firstName": "Avlon",
-    "lastName": "Hinbox",
-    "email": "avlon@24hinbox.com",
+    "firstName": "Houti",
+    "lastName": "Yaman",
+    "email": "yaminahouti@taptoplab.com",
     "password": "123456"
 }
 
@@ -21,7 +21,7 @@ POST http://localhost:3000/auth/login
 Content-Type: application/json
 
 {
-    "email": "avlon@24hinbox.com",
+    "email": "yaminahouti@taptoplab.com",
     "password": "123456"
 }
 
@@ -44,6 +44,16 @@ POST http://localhost:3000/auth/verify-email
 Content-Type: application/json
 
 {
- "token": "472973d3f01497afa48549538d39f9fe2cf5eb5bfd09edc22bfe53d9d1bfa12e"
+ "token": "879af8164e13ff9c8ece63bb900e1c64ef7c10bf83799d72b6db6bb3b76aeb53"
+}
+
+### Verify OTP
+
+POST http://localhost:3000/auth/verify-otp
+Content-Type: application/json
+
+{
+ "tempToken": "90c251c6-e745-4422-830a-4b43cfcc720b",
+ "otp": "801913"
 }
 

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -12,6 +13,13 @@ import { EmailService } from 'src/modules/email/email.service';
 import { randomBytes } from 'crypto';
 import { addMinutes } from 'date-fns';
 import { ConfigService } from '@nestjs/config';
+import { User } from '../users/entities/user.entity';
+import { OtpType } from '../otp/type/otp-type';
+import { OtpService } from '../otp/otp.service';
+import { OtpVerifyDto } from '../otp/dto/otp-verify.dto';
+import { MoreThan, Repository } from 'typeorm';
+import { Otp } from '../otp/entities/otp.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +28,9 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
+    private readonly otpService: OtpService,
+    @InjectRepository(Otp)
+    private readonly otpRepo: Repository<Otp>,
   ) {}
 
   getEnvVariables() {
@@ -64,16 +75,10 @@ export class AuthService {
       isEmailVerified: false,
     });
 
-    const verifyUrl = `http://localhost:3001/verify-email?token=${token}`;
-    const html = `<p>Click <a href="${verifyUrl}">here</a> to verify your email.</p>`;
-
     // Send activation email
     await this.emailService.sendActivationEmail(user.email, token);
 
-    return {
-      message:
-        'Registration successful. Check your email to verify your account.',
-    };
+    return user;
   }
 
   async login(loginDto: LoginDto) {
@@ -94,7 +99,21 @@ export class AuthService {
       );
     }
 
-    return this.generateToken(user);
+    const { accessToken } = this.generateToken(user);
+
+    const { otp, tempToken } = await this.otpService.generateOtp(
+      user,
+      6,
+      OtpType.OTP,
+    );
+
+    await this.emailService.sendEmail({
+      recipients: [user.email],
+      subject: 'OTP for login verification',
+      html: `<p>Your OTP code is: <strong>${otp}</strong></p>`,
+    });
+
+    return { tempToken };
   }
 
   private generateToken(user: any) {
@@ -120,6 +139,46 @@ export class AuthService {
 
     await this.usersService.save(user);
 
-    return { message: 'Email verified successfully. You can now log in.' };
+    // return { message: 'Email verified successfully. You can now log in.' };
+  }
+
+  async verifyOtp(dto: OtpVerifyDto) {
+    const { tempToken, otp } = dto;
+    const otpRecord = await this.otpRepo.findOne({
+      where: {
+        tempToken,
+        expiresAt: MoreThan(new Date()),
+        type: OtpType.OTP,
+      },
+      relations: ['user'],
+    });
+
+    if (!otpRecord) {
+      throw new UnauthorizedException('Invalid or expired token.');
+    }
+
+    if (otpRecord.isLocked) {
+      throw new ForbiddenException(
+        'OTP is locked due to too many failed attempts.',
+      );
+    }
+
+    const isMatch = await bcrypt.compare(otp, otpRecord.token);
+    if (!isMatch) {
+      otpRecord.failedAttempts += 1;
+      if (otpRecord.failedAttempts >= 5) {
+        otpRecord.isLocked = true;
+      }
+      await this.otpRepo.save(otpRecord);
+      throw new UnauthorizedException('Invalid otp.');
+    }
+
+    const user = await this.usersService.findById(otpRecord.user.id);
+
+    await this.otpRepo.delete({ id: otpRecord.id });
+
+    const { accessToken } = this.generateToken(user);
+
+    return { accessToken, user };
   }
 }
