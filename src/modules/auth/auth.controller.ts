@@ -5,6 +5,7 @@ import {
   Get,
   Post,
   Req,
+  Res,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { OtpType } from '../otp/type/otp-type';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { SetNewPasswordDto } from './dto/set-new-password.dto';
+import { GoogleOAuthGuard } from './guards/google.guard';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -80,6 +82,27 @@ export class AuthController {
   async setNewPassword(@Req() req, @Body() dto: SetNewPasswordDto) {
     await this.authService.setNewPassword(req.user.id, dto.newPassword);
     return successResponse('Password has been reset successfully');
+  }
+
+  @Get('google/login')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuth() {
+    // Guard redirects to Google
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleOAuthGuard)
+  async googleCallback(@Req() req, @Res() res) {
+    try {
+      const response = await this.authService.oauthLogin(req.user);
+
+      res.redirect(
+        `${process.env.FRONT_END_URL}?token=${response.accessToken}`,
+      );
+    } catch (error) {
+      console.error('OAuth callback error:', error);
+      res.redirect(`${process.env.FRONT_END_URL}?error=oauth_failed`);
+    }
   }
 
   @Get('env')

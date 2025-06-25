@@ -216,4 +216,74 @@ export class AuthService {
 
     await this.usersService.save(user);
   }
+
+  async oauthLogin(profile: any) {
+    const userData = {
+      email: profile._json?.email || profile.emails?.[0]?.value,
+      firstName: profile._json?.given_name || profile.name?.givenName,
+      lastName: profile._json?.family_name || profile.name?.familyName,
+      googleId: profile._json?.sub || profile.id,
+    };
+
+    let user = await this.usersService.findByEmail(userData.email);
+
+    if (!user) {
+      user = await this.usersService.create({
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        googleId: userData.googleId,
+        isEmailVerified: true,
+      });
+    } else {
+      if (!user.googleId) {
+        user.googleId = userData.googleId;
+        user.isEmailVerified = true;
+        user.googleId = userData.googleId;
+        user.isEmailVerified = true;
+        await this.usersService.save(user);
+      }
+    }
+
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    };
+
+    const { accessToken } = this.generateToken(payload);
+
+    return {
+      accessToken,
+      user,
+      message: 'OAuth login successful',
+    };
+  }
+
+  async validateGoogleAuth(googleUser: RegisterDto) {
+    const { email, firstName, lastName } = googleUser;
+
+    let user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      user = await this.usersService.create({
+        email,
+        firstName,
+        lastName,
+      });
+    }
+
+    return this.generateToken(user);
+  }
+
+  async validateUser(email: string, password: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) throw new UnauthorizedException('User not found!');
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch)
+      throw new UnauthorizedException('Invalid credentials');
+
+    return { id: user.id };
+  }
 }

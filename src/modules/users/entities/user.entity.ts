@@ -21,9 +21,12 @@ export class User {
   @Column()
   lastName: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Exclude()
-  password: string;
+  password?: string;
+
+  @Column({ nullable: true })
+  googleId?: string;
 
   @Column({ default: false })
   isEmailVerified: boolean;
