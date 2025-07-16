@@ -77,11 +77,11 @@ Powered by **Passport.js**, **TypeORM**, and **PostgreSQL**.
 git clone https://github.com/CodeEnthusiast09/nexura.git
 cd nexura
 npm install
+```
 
-## Environment Variables
-2. **Create a `.env` file in the root folder with the following:
+2. **Create a .env file in the root folder with the following variables:
 
-```env
+```.env
 # Application
 PORT=
 SECRET=
@@ -106,8 +106,11 @@ FRONT_END_URL=
 GOOGLE_CLIENT_ID= 
 GOOGLE_CLIENT_SECRET= 
 GOOGLE_CALLBACK_URL= 
+```
 
-3. Run Migration and Start the project 
+3. **Run Database Migrations and Start the Project
+
 ```bash
 npm run migration:run
 npm run start:dev
+```
