@@ -38,9 +38,6 @@ Powered by **Passport.js**, **TypeORM**, and **PostgreSQL**.
 
 ### 📖 Auth
 
-- **Get Environment Variables**  
-  `GET /auth/env`
-
 - **Register**  
   `POST /auth/register`
 
