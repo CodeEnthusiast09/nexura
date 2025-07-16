@@ -79,8 +79,7 @@ cd nexura
 npm install
 
 ## Environment Variables
-
-Before running the project, create a `.env` file in the root folder with the following:
+2. **Create a `.env` file in the root folder with the following:
 
 ```env
 # Application
@@ -108,5 +107,7 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET= 
 GOOGLE_CALLBACK_URL= 
 
+3. Run Migration and Start the project 
+```bash
 npm run migration:run
 npm run start:dev
